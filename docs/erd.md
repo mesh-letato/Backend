@@ -6,13 +6,14 @@
 // ──────────────────────────────────────────
 Table users {
   id            bigint      [pk, increment]
-  email         varchar     [unique, null,  note: '이메일 로그인 식별자 (이메일 가입 시 사용)']
-  password      varchar     [null,          note: 'BCrypt 해시 (이메일 가입 시에만 존재, OAuth 전용 계정은 null)']
+  email         varchar     [unique, not null, note: '이메일 로그인 식별자. 카카오 가입자는 kakao_{kakaoId}@pinmoa.com 형태의 더미 값 (현재 구현은 NOT NULL — apple_id 등 추가 소셜 도입 시 nullable 전환 검토 필요)']
+  password      varchar     [not null,      note: 'BCrypt 해시 (이메일 가입). 카카오 가입자는 placeholder 문자열 (현재 구현은 NOT NULL)']
   kakao_id      varchar     [unique, null,  note: '카카오 소셜 로그인 식별자']
-  apple_id      varchar     [unique, null,  note: '애플 소셜 로그인 식별자']
+  apple_id      varchar     [unique, null,  note: '애플 소셜 로그인 식별자 (미구현, 계획 단계)']
   nickname      varchar     [not null]
   profile_image_url varchar  [null]
   created_at    timestamp   [not null, default: `now()`]
+  updated_at    timestamp   [null, note: '프로필 수정 시 갱신']
 }
 
 // ──────────────────────────────────────────
