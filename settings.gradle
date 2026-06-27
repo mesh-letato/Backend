@@ -1,1 +1,5 @@
-rootProject.name = 'demo'
+rootProject.name = 'pinmoa'
+
+include 'api-gateway'
+include 'core-service'
+include 'link-service'
