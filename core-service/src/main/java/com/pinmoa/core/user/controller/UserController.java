@@ -23,6 +23,12 @@ public class UserController {
         return ResponseEntity.ok(userService.signup(request));
     }
 
+    @Operation(summary = "로그인 (JWT 토큰 반환)")
+    @PostMapping("/login")
+    public ResponseEntity<UserLoginResponse> login(@RequestBody @Valid UserLoginRequest request) {
+        return ResponseEntity.ok(userService.login(request));
+    }
+
     @Operation(summary = "회원 조회")
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
