@@ -28,6 +28,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+kakao:
+  api-key: ${KAKAO_API_KEY}
+
 jwt:
   secret: pinmoa-jwt-secret-key-must-be-at-least-32-characters-long
   access-expiration: 3600000
