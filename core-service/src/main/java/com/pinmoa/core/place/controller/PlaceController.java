@@ -2,6 +2,7 @@ package com.pinmoa.core.place.controller;
 
 import com.pinmoa.core.place.dto.PlaceResponse;
 import com.pinmoa.core.place.dto.PlaceSaveRequest;
+import com.pinmoa.core.place.dto.PlaceSaversResponse;
 import com.pinmoa.core.place.dto.PlaceSearchResponse;
 import com.pinmoa.core.place.service.PlaceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +43,12 @@ public class PlaceController {
     @GetMapping("/{placeId}")
     public ResponseEntity<PlaceResponse> getPlace(@PathVariable Long placeId) {
         return ResponseEntity.ok(placeService.getPlace(placeId));
+    }
+
+    @Operation(summary = "장소 저장자 목록 조회 (저장 수 + 사용자 정보)")
+    @GetMapping("/{placeId}/savers")
+    public ResponseEntity<PlaceSaversResponse> getPlaceSavers(@PathVariable Long placeId) {
+        return ResponseEntity.ok(placeService.getPlaceSavers(placeId));
     }
 
     @Operation(summary = "스페이스 내 장소 목록 조회")

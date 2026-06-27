@@ -37,9 +37,18 @@ public class ReviewController {
                 .body(reviewService.createReview(userId, request));
     }
 
-    @Operation(summary = "장소별 후기 목록 조회 (최신순)")
+    @Operation(summary = "후기 목록 조회 (최신순) — placeId 또는 spaceId 중 하나 필수")
     @GetMapping
-    public ResponseEntity<List<ReviewResponse>> getReviews(@RequestParam Long placeId) {
-        return ResponseEntity.ok(reviewService.getReviewsByPlace(placeId));
+    public ResponseEntity<List<ReviewResponse>> getReviews(
+            @RequestParam(required = false) Long placeId,
+            @RequestParam(required = false) Long spaceId
+    ) {
+        if (placeId != null) {
+            return ResponseEntity.ok(reviewService.getReviewsByPlace(placeId));
+        }
+        if (spaceId != null) {
+            return ResponseEntity.ok(reviewService.getReviewsBySpace(spaceId));
+        }
+        return ResponseEntity.badRequest().build();
     }
 }

@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-	List<Review> findByPlaceIdOrderByCreatedAtDesc(Long placeId);
+    List<Review> findByPlaceIdOrderByCreatedAtDesc(Long placeId);
+
+    List<Review> findBySpaceIdOrderByCreatedAtDesc(Long spaceId);
 }

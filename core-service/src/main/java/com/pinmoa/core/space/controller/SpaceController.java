@@ -1,6 +1,7 @@
 package com.pinmoa.core.space.controller;
 
 import com.pinmoa.core.space.dto.SpaceCreateRequest;
+import com.pinmoa.core.space.dto.SpaceMemberResponse;
 import com.pinmoa.core.space.dto.SpaceResponse;
 import com.pinmoa.core.space.dto.SpaceUpdateRequest;
 import com.pinmoa.core.space.service.SpaceService;
@@ -55,6 +56,15 @@ public class SpaceController {
             @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(spaceService.getSpaceById(spaceId, userId));
+    }
+
+    @Operation(summary = "스페이스 멤버 목록 조회")
+    @GetMapping("/{spaceId}/members")
+    public ResponseEntity<List<SpaceMemberResponse>> getSpaceMembers(
+            @PathVariable Long spaceId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return ResponseEntity.ok(spaceService.getSpaceMembers(spaceId, userId));
     }
 
     @Operation(summary = "스페이스 수정 (OWNER만 가능)")

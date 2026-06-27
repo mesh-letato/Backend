@@ -35,6 +35,6 @@ kakao:
     key: ${KAKAO_API_KEY}
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:pinmoa-local-dev-secret-key-must-be-at-least-256-bits-long}
   access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:1209600000}

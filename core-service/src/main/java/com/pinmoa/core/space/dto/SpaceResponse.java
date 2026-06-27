@@ -23,8 +23,14 @@ public class SpaceResponse {
     private SpaceType type;
     private String inviteCode;
     private LocalDateTime createdAt;
+    private long memberCount;
+    private long placeCount;
 
     public static SpaceResponse from(Space space) {
+        return from(space, 0, 0);
+    }
+
+    public static SpaceResponse from(Space space, long memberCount, long placeCount) {
         return SpaceResponse.builder()
                 .id(space.getId())
                 .ownerId(space.getOwnerId())
@@ -33,6 +39,8 @@ public class SpaceResponse {
                 .type(space.getType())
                 .inviteCode(space.getInviteCode())
                 .createdAt(space.getCreatedAt())
+                .memberCount(memberCount)
+                .placeCount(placeCount)
                 .build();
     }
 }

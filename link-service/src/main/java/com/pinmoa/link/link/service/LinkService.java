@@ -43,7 +43,7 @@ public class LinkService {
 		linkRepository.save(SnsLink.create(userId, request.url(), platform));
 
 		VideoMetadata metadata = videoMetadataExtractor.extract(request.url());
-		List<ExtractedPlace> extractedPlaces = placeTextExtractor.extract(metadata.description());
+		List<ExtractedPlace> extractedPlaces = placeTextExtractor.extract(metadata.toExtractableText());
 		log.info("userId={}, 플랫폼={}, LLM 추출 장소 수={}", userId, platform, extractedPlaces.size());
 
 		List<PlaceCandidate> candidates = searchAndMerge(extractedPlaces);

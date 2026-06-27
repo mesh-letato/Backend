@@ -7,9 +7,12 @@ import com.pinmoa.core.place.domain.Place;
 import com.pinmoa.core.place.domain.SavedPlace;
 import com.pinmoa.core.place.dto.PlaceResponse;
 import com.pinmoa.core.place.dto.PlaceSaveRequest;
+import com.pinmoa.core.place.dto.PlaceSaverInfo;
+import com.pinmoa.core.place.dto.PlaceSaversResponse;
 import com.pinmoa.core.place.dto.PlaceSearchResponse;
 import com.pinmoa.core.place.repository.PlaceRepository;
 import com.pinmoa.core.place.repository.SavedPlaceRepository;
+import com.pinmoa.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ public class PlaceService {
     private final KakaoPlaceClient kakaoPlaceClient;
     private final PlaceRepository placeRepository;
     private final SavedPlaceRepository savedPlaceRepository;
+    private final UserRepository userRepository;
 
     public List<PlaceSearchResponse> search(String query) {
         return kakaoPlaceClient.search(query).stream()
@@ -71,6 +75,15 @@ public class PlaceService {
         return savedPlaceRepository.findBySpaceId(spaceId).stream()
                 .map(savedPlace -> PlaceResponse.from(savedPlace.getPlace()))
                 .toList();
+    }
+
+    public PlaceSaversResponse getPlaceSavers(Long placeId) {
+        findById(placeId);
+        List<Long> saverIds = savedPlaceRepository.findSaverIdsByPlaceId(placeId);
+        List<PlaceSaverInfo> savers = userRepository.findAllById(saverIds).stream()
+                .map(PlaceSaverInfo::from)
+                .toList();
+        return new PlaceSaversResponse(savers.size(), savers);
     }
 
     @Transactional

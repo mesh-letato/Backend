@@ -14,7 +14,11 @@ public interface SpaceMemberRepository extends JpaRepository<SpaceMember, Long> 
     @Query("SELECT sm.space FROM SpaceMember sm WHERE sm.userId = :userId")
     List<Space> findSpacesByUserId(@Param("userId") Long userId);
 
+    List<SpaceMember> findAllBySpaceId(Long spaceId);
+
     Optional<SpaceMember> findBySpaceIdAndUserId(Long spaceId, Long userId);
 
     boolean existsBySpaceIdAndUserId(Long spaceId, Long userId);
+
+    long countBySpaceId(Long spaceId);
 }

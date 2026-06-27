@@ -9,4 +9,10 @@ public record VideoMetadata(
 	String uploader,
 	String webpageUrl
 ) {
+    public String toExtractableText() {
+        StringBuilder sb = new StringBuilder();
+        if (title != null && !title.isBlank()) sb.append(title).append("\n");
+        if (description != null && !description.isBlank()) sb.append(description);
+        return sb.toString().strip();
+    }
 }

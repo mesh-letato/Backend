@@ -3,8 +3,17 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      mvc:
-        enabled: true
+      server:
+        webmvc:
+          routes:
+            - id: core-service
+              uri: ${CORE_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/api/core/**
+            - id: link-service
+              uri: ${LINK_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/api/link/**
 
 server:
   port: 8080
@@ -15,10 +24,6 @@ management:
       exposure:
         include: health,info
 
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -28,5 +33,6 @@ springdoc:
       - name: link-service
         url: /api/link/v3/api-docs
 
+# JWT 검증 (core-service 와 동일한 시크릿)
 jwt:
-  secret: ${JWT_SECRET:pinmoa-jwt-secret-key-must-be-at-least-32-characters-long}
+  secret: ${JWT_SECRET:pinmoa-local-dev-secret-key-must-be-at-least-256-bits-long}

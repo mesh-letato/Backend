@@ -2,7 +2,9 @@ package com.pinmoa.core.space.service;
 
 import com.pinmoa.core.global.exception.BusinessException;
 import com.pinmoa.core.global.exception.ErrorCode;
+import com.pinmoa.core.place.repository.SavedPlaceRepository;
 import com.pinmoa.core.space.dto.SpaceCreateRequest;
+import com.pinmoa.core.space.dto.SpaceMemberResponse;
 import com.pinmoa.core.space.dto.SpaceResponse;
 import com.pinmoa.core.space.dto.SpaceUpdateRequest;
 import com.pinmoa.core.space.entity.Space;
@@ -11,12 +13,16 @@ import com.pinmoa.core.space.entity.SpaceRole;
 import com.pinmoa.core.space.entity.SpaceType;
 import com.pinmoa.core.space.repository.SpaceMemberRepository;
 import com.pinmoa.core.space.repository.SpaceRepository;
+import com.pinmoa.core.user.domain.User;
+import com.pinmoa.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +31,8 @@ public class SpaceService {
 
     private final SpaceRepository spaceRepository;
     private final SpaceMemberRepository spaceMemberRepository;
+    private final SavedPlaceRepository savedPlaceRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public SpaceResponse createSpace(Long userId, SpaceCreateRequest request) {
@@ -48,12 +56,14 @@ public class SpaceService {
                 .build();
         spaceMemberRepository.save(owner);
 
-        return SpaceResponse.from(space);
+        return SpaceResponse.from(space, 1, 0);
     }
 
     public List<SpaceResponse> getMySpaces(Long userId) {
         return spaceMemberRepository.findSpacesByUserId(userId).stream()
-                .map(SpaceResponse::from)
+                .map(space -> SpaceResponse.from(space,
+                        spaceMemberRepository.countBySpaceId(space.getId()),
+                        savedPlaceRepository.countBySpaceId(space.getId())))
                 .toList();
     }
 
@@ -65,7 +75,28 @@ public class SpaceService {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
-        return SpaceResponse.from(space);
+        return SpaceResponse.from(space,
+                spaceMemberRepository.countBySpaceId(spaceId),
+                savedPlaceRepository.countBySpaceId(spaceId));
+    }
+
+    public List<SpaceMemberResponse> getSpaceMembers(Long spaceId, Long userId) {
+        if (!spaceRepository.existsById(spaceId)) {
+            throw new BusinessException(ErrorCode.SPACE_NOT_FOUND);
+        }
+        if (!spaceMemberRepository.existsBySpaceIdAndUserId(spaceId, userId)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        List<SpaceMember> members = spaceMemberRepository.findAllBySpaceId(spaceId);
+        List<Long> userIds = members.stream().map(SpaceMember::getUserId).toList();
+        Map<Long, User> userMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
+
+        return members.stream()
+                .filter(m -> userMap.containsKey(m.getUserId()))
+                .map(m -> SpaceMemberResponse.of(m, userMap.get(m.getUserId())))
+                .toList();
     }
 
     @Transactional
@@ -81,7 +112,9 @@ public class SpaceService {
         }
 
         space.update(request.name(), request.emoji());
-        return SpaceResponse.from(space);
+        return SpaceResponse.from(space,
+                spaceMemberRepository.countBySpaceId(spaceId),
+                savedPlaceRepository.countBySpaceId(spaceId));
     }
 
     @Transactional
@@ -99,7 +132,9 @@ public class SpaceService {
                 .role(SpaceRole.MEMBER)
                 .build());
 
-        return SpaceResponse.from(space);
+        return SpaceResponse.from(space,
+                spaceMemberRepository.countBySpaceId(space.getId()),
+                savedPlaceRepository.countBySpaceId(space.getId()));
     }
 
     @Transactional
