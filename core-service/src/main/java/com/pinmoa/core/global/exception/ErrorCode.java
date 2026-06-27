@@ -23,6 +23,8 @@ public enum ErrorCode {
 
     // Space
     SPACE_NOT_FOUND(HttpStatus.NOT_FOUND, "SPACE_NOT_FOUND", "스페이스를 찾을 수 없습니다."),
+    INVALID_INVITE_CODE(HttpStatus.NOT_FOUND, "INVALID_INVITE_CODE", "유효하지 않은 초대 코드입니다."),
+    ALREADY_SPACE_MEMBER(HttpStatus.CONFLICT, "ALREADY_SPACE_MEMBER", "이미 참여 중인 스페이스입니다."),
     UNAUTHORIZED(HttpStatus.FORBIDDEN, "UNAUTHORIZED", "권한이 없습니다."),
 
     // Place
