@@ -35,6 +35,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
+                    "/api/core/v3/api-docs/**",
+                    "/api/core/swagger-ui/**",
                     "/actuator/**"
                 ).permitAll()
                 // 나머지는 인증 필요 (게이트웨이가 주입한 X-User-Id 기반)
