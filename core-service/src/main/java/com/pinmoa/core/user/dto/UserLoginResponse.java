@@ -4,6 +4,7 @@ public record UserLoginResponse(
     Long userId,
     String email,
     String nickname,
-    String token
+    String accessToken,
+    String refreshToken
 ) {
 }

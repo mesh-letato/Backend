@@ -29,6 +29,12 @@ public class UserController {
         return ResponseEntity.ok(userService.login(request));
     }
 
+    @Operation(summary = "Access Token 갱신")
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenRefreshResponse> refresh(@RequestBody @Valid TokenRefreshRequest request) {
+        return ResponseEntity.ok(userService.refresh(request));
+    }
+
     @Operation(summary = "회원 조회")
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
