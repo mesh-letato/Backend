@@ -1,5 +1,7 @@
 package com.pinmoa.core.user.service;
 
+import com.pinmoa.core.global.exception.BusinessException;
+import com.pinmoa.core.global.exception.ErrorCode;
 import com.pinmoa.core.user.domain.User;
 import com.pinmoa.core.user.dto.*;
 import com.pinmoa.core.user.repository.UserRepository;
@@ -18,7 +20,7 @@ public class UserService {
     @Transactional
     public UserResponse signup(UserSignupRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
         User user = User.builder()
             .email(request.email())
@@ -47,6 +49,6 @@ public class UserService {
 
     private User findById(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }

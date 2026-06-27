@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: core-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pinmoa_dev
+    driver-class-name: org.postgresql.Driver
+    username: pinmoa
+    password: pinmoa1234
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
