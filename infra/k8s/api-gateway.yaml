@@ -16,6 +16,7 @@ spec:
       containers:
         - name: api-gateway
           image: 211395677813.dkr.ecr.ap-northeast-2.amazonaws.com/pinmoa/api-gateway:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:

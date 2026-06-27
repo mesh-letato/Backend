@@ -16,8 +16,15 @@ spec:
       containers:
         - name: link-service
           image: 211395677813.dkr.ecr.ap-northeast-2.amazonaws.com/pinmoa/link-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8082
+          env:
+            - name: KAKAO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pinmoa-secrets
+                  key: kakao-api-key
           readinessProbe:
             httpGet:
               path: /actuator/health
