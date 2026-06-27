@@ -46,6 +46,7 @@ Thumbs.db
 .env
 application-local.properties
 application-local.yml
+application.yml
 
 ### Logs ###
 *.log
