@@ -5,15 +5,6 @@ spring:
     gateway:
       mvc:
         enabled: true
-        routes:
-          - id: core-service
-            uri: ${CORE_SERVICE_URL:http://localhost:8081}
-            predicates:
-              - Path=/api/core/**
-          - id: link-service
-            uri: ${LINK_SERVICE_URL:http://localhost:8082}
-            predicates:
-              - Path=/api/link/**
 
 server:
   port: 8080
