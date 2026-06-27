@@ -2,9 +2,11 @@ package com.pinmoa.core.user.service;
 
 import com.pinmoa.core.global.exception.BusinessException;
 import com.pinmoa.core.global.exception.ErrorCode;
+import com.pinmoa.core.global.jwt.JwtUtil;
 import com.pinmoa.core.user.domain.User;
 import com.pinmoa.core.user.dto.*;
 import com.pinmoa.core.user.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public UserResponse signup(UserSignupRequest request) {
@@ -28,6 +31,17 @@ public class UserService {
             .nickname(request.nickname())
             .build();
         return UserResponse.from(userRepository.save(user));
+    }
+
+    @Transactional(readOnly = true)
+    public UserLoginResponse login(UserLoginRequest request) {
+        User user = userRepository.findByEmail(request.email())
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD);
+        }
+        String token = jwtUtil.generate(user.getId(), user.getNickname());
+        return new UserLoginResponse(user.getId(), user.getEmail(), user.getNickname(), token);
     }
 
     @Transactional(readOnly = true)
@@ -45,6 +59,15 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         userRepository.delete(findById(userId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> searchByNickname(String query) {
+        String nickname = query.startsWith("@") ? query.substring(1) : query;
+        return userRepository.findByNicknameContaining(nickname)
+            .stream()
+            .map(UserResponse::from)
+            .toList();
     }
 
     private User findById(Long userId) {
