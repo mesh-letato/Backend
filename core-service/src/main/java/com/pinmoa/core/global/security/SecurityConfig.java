@@ -1,8 +1,6 @@
 package com.pinmoa.core.global.security;
 
-import com.pinmoa.core.global.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,10 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final JwtUtil jwtUtil;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,11 +37,11 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/actuator/**"
                 ).permitAll()
-                // 나머지는 인증 필요
+                // 나머지는 인증 필요 (게이트웨이가 주입한 X-User-Id 기반)
                 .anyRequest().authenticated()
             )
             .addFilterBefore(
-                new JwtAuthenticationFilter(jwtUtil),
+                new GatewayAuthenticationFilter(),
                 UsernamePasswordAuthenticationFilter.class
             );
 
