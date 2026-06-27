@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: link-service
+  namespace: pinmoa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: link-service
+  template:
+    metadata:
+      labels:
+        app: link-service
+    spec:
+      containers:
+        - name: link-service
+          image: 211395677813.dkr.ecr.ap-northeast-2.amazonaws.com/pinmoa/link-service:latest
+          ports:
+            - containerPort: 8082
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: link-service
+  namespace: pinmoa
+spec:
+  type: ClusterIP
+  selector:
+    app: link-service
+  ports:
+    - port: 8082
+      targetPort: 8082
+      protocol: TCP

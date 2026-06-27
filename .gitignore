@@ -51,3 +51,15 @@ application-local.yml
 
 ### Logs ###
 *.log
+
+### Terraform (민감 정보 보호) ###
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.*
+infra/terraform/*.tfvars
+infra/terraform/crash.log
+infra/terraform/.terraform.lock.hcl
+
+### K8s 시크릿 (example 파일은 커밋 허용) ###
+infra/k8s/secrets.yaml
+!infra/k8s/secrets.yaml.example
