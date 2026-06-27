@@ -2,10 +2,10 @@ spring:
   application:
     name: core-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/pinmoa_dev
+    url: ${SPRING_DATASOURCE_URL}
     driver-class-name: org.postgresql.Driver
-    username: pinmoa
-    password: pinmoa1234
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -25,5 +25,16 @@ management:
         include: health,info
 
 springdoc:
+  api-docs:
+    path: /api/core/v3/api-docs
   swagger-ui:
-    path: /swagger-ui.html
+    path: /api/core/swagger-ui.html
+
+kakao:
+  api:
+    key: ${KAKAO_API_KEY}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:1209600000}

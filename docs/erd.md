@@ -70,7 +70,7 @@ Table saved_places {
   created_at timestamp [not null, default: `now()`]
 
   indexes {
-    (space_id, place_id, saved_by) [unique]
+    (space_id, place_id) [unique, note: '스페이스 내 장소 중복 저장 방지 (누가 저장했는지와 무관)']
   }
 }
 
