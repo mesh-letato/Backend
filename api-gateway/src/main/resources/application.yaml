@@ -13,18 +13,6 @@ spring:
             uri: ${LINK_SERVICE_URL:http://localhost:8082}
             predicates:
               - Path=/api/link/**
-          - id: core-service-api-docs
-            uri: ${CORE_SERVICE_URL:http://localhost:8081}
-            predicates:
-              - Path=/api-docs/core
-            filters:
-              - RewritePath=/api-docs/core, /v3/api-docs
-          - id: link-service-api-docs
-            uri: ${LINK_SERVICE_URL:http://localhost:8082}
-            predicates:
-              - Path=/api-docs/link
-            filters:
-              - RewritePath=/api-docs/link, /v3/api-docs
 
 server:
   port: 8080
@@ -40,9 +28,9 @@ springdoc:
     path: /swagger-ui.html
     urls:
       - name: core-service
-        url: /api-docs/core
+        url: /api/core/v3/api-docs
       - name: link-service
-        url: /api-docs/link
+        url: /api/link/v3/api-docs
 
 # JWT 검증 (core-service 와 동일한 시크릿)
 jwt:

@@ -25,8 +25,10 @@ management:
         include: health,info
 
 springdoc:
+  api-docs:
+    path: /api/link/v3/api-docs
   swagger-ui:
-    path: /swagger-ui.html
+    path: /api/link/swagger-ui.html
 
 # 카카오 로컬 키워드 검색 (core-service와 동일한 REST API 키 사용)
 kakao:
