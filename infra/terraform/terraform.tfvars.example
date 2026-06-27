@@ -1,0 +1,12 @@
+# 이 파일을 복사해서 terraform.tfvars 로 만들고 실제 값을 채워주세요.
+# terraform.tfvars 는 .gitignore 에 등록되어 있어 커밋되지 않습니다.
+
+aws_region   = "ap-northeast-2"
+project      = "pinmoa"
+environment  = "dev"
+
+# RDS
+db_password  = "변경하세요_최소16자_특수문자포함"
+
+# JWT (core-service)
+jwt_secret   = "변경하세요_최소32자_랜덤문자열"
