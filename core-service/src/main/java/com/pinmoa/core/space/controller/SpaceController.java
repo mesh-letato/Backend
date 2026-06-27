@@ -1,6 +1,5 @@
 package com.pinmoa.core.space.controller;
 
-import com.pinmoa.core.global.response.ApiResponse;
 import com.pinmoa.core.space.dto.SpaceCreateRequest;
 import com.pinmoa.core.space.dto.SpaceResponse;
 import com.pinmoa.core.space.dto.SpaceUpdateRequest;
@@ -33,52 +32,47 @@ public class SpaceController {
 
     @Operation(summary = "스페이스 생성")
     @PostMapping
-    public ResponseEntity<ApiResponse<SpaceResponse>> createSpace(
+    public ResponseEntity<SpaceResponse> createSpace(
             @RequestHeader("X-USER-ID") Long userId,
             @Valid @RequestBody SpaceCreateRequest request
     ) {
-        SpaceResponse response = spaceService.createSpace(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(response, "스페이스 생성 성공"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(spaceService.createSpace(userId, request));
     }
 
     @Operation(summary = "내 스페이스 목록 조회")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<SpaceResponse>>> getMySpaces(
+    public ResponseEntity<List<SpaceResponse>> getMySpaces(
             @RequestHeader("X-USER-ID") Long userId
     ) {
-        List<SpaceResponse> responses = spaceService.getMySpaces(userId);
-        return ResponseEntity.ok(ApiResponse.success(responses, "스페이스 목록 조회 성공"));
+        return ResponseEntity.ok(spaceService.getMySpaces(userId));
     }
 
     @Operation(summary = "스페이스 단건 조회")
     @GetMapping("/{spaceId}")
-    public ResponseEntity<ApiResponse<SpaceResponse>> getSpaceById(
+    public ResponseEntity<SpaceResponse> getSpaceById(
             @PathVariable Long spaceId,
             @RequestHeader("X-USER-ID") Long userId
     ) {
-        SpaceResponse response = spaceService.getSpaceById(spaceId, userId);
-        return ResponseEntity.ok(ApiResponse.success(response, "스페이스 조회 성공"));
+        return ResponseEntity.ok(spaceService.getSpaceById(spaceId, userId));
     }
 
     @Operation(summary = "스페이스 수정 (OWNER만 가능)")
     @PatchMapping("/{spaceId}")
-    public ResponseEntity<ApiResponse<SpaceResponse>> updateSpace(
+    public ResponseEntity<SpaceResponse> updateSpace(
             @PathVariable Long spaceId,
             @RequestHeader("X-USER-ID") Long userId,
             @RequestBody SpaceUpdateRequest request
     ) {
-        SpaceResponse response = spaceService.updateSpace(spaceId, userId, request);
-        return ResponseEntity.ok(ApiResponse.success(response, "스페이스 수정 성공"));
+        return ResponseEntity.ok(spaceService.updateSpace(spaceId, userId, request));
     }
 
     @Operation(summary = "스페이스 삭제 (OWNER만 가능)")
     @DeleteMapping("/{spaceId}")
-    public ResponseEntity<ApiResponse<Void>> deleteSpace(
+    public ResponseEntity<Void> deleteSpace(
             @PathVariable Long spaceId,
             @RequestHeader("X-USER-ID") Long userId
     ) {
         spaceService.deleteSpace(spaceId, userId);
-        return ResponseEntity.ok(ApiResponse.success(null, "스페이스 삭제 성공"));
+        return ResponseEntity.noContent().build();
     }
 }

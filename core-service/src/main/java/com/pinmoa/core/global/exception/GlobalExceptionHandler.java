@@ -1,8 +1,6 @@
 package com.pinmoa.core.global.exception;
 
-import com.pinmoa.core.global.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,22 +8,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusiness(BusinessException e) {
         ErrorCode errorCode = e.getErrorCode();
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(ApiResponse.error(errorCode.getMessage()));
+        return ResponseEntity.status(errorCode.getStatus()).body(ErrorResponse.of(errorCode));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .findFirst()
-                .orElse("유효하지 않은 요청입니다.");
-        return ResponseEntity
-                .status(ErrorCode.INVALID_REQUEST.getStatus())
-                .body(ApiResponse.error(message));
+                .orElse("입력값이 올바르지 않습니다.");
+        return ResponseEntity.badRequest().body(ErrorResponse.of(ErrorCode.INVALID_INPUT.getCode(), message));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+        return ResponseEntity.internalServerError().body(ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

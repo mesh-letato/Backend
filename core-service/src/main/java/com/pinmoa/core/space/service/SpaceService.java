@@ -1,6 +1,6 @@
 package com.pinmoa.core.space.service;
 
-import com.pinmoa.core.global.exception.CustomException;
+import com.pinmoa.core.global.exception.BusinessException;
 import com.pinmoa.core.global.exception.ErrorCode;
 import com.pinmoa.core.space.dto.SpaceCreateRequest;
 import com.pinmoa.core.space.dto.SpaceResponse;
@@ -59,10 +59,10 @@ public class SpaceService {
 
     public SpaceResponse getSpaceById(Long spaceId, Long userId) {
         Space space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SPACE_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.SPACE_NOT_FOUND));
 
         if (!spaceMemberRepository.existsBySpaceIdAndUserId(spaceId, userId)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
         return SpaceResponse.from(space);
@@ -71,13 +71,13 @@ public class SpaceService {
     @Transactional
     public SpaceResponse updateSpace(Long spaceId, Long userId, SpaceUpdateRequest request) {
         Space space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SPACE_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.SPACE_NOT_FOUND));
 
         SpaceMember member = spaceMemberRepository.findBySpaceIdAndUserId(spaceId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 
         if (member.getRole() != SpaceRole.OWNER) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
         space.update(request.name(), request.emoji());
@@ -87,13 +87,13 @@ public class SpaceService {
     @Transactional
     public void deleteSpace(Long spaceId, Long userId) {
         Space space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SPACE_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.SPACE_NOT_FOUND));
 
         SpaceMember member = spaceMemberRepository.findBySpaceIdAndUserId(spaceId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 
         if (member.getRole() != SpaceRole.OWNER) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
         spaceRepository.delete(space);

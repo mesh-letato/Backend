@@ -1,13 +1,13 @@
 # 핀모아 (PinMoa) ERD
 
-> [dbdiagram.io](https://dbdiagram.io) 에 아래 코드를 붙여넣어 시각화하세요.
-
 ```dbml
 // ──────────────────────────────────────────
 // 사용자
 // ──────────────────────────────────────────
 Table users {
   id            bigint      [pk, increment]
+  email         varchar     [unique, null,  note: '이메일 로그인 식별자 (이메일 가입 시 사용)']
+  password      varchar     [null,          note: 'BCrypt 해시 (이메일 가입 시에만 존재, OAuth 전용 계정은 null)']
   kakao_id      varchar     [unique, null,  note: '카카오 소셜 로그인 식별자']
   apple_id      varchar     [unique, null,  note: '애플 소셜 로그인 식별자']
   nickname      varchar     [not null]
@@ -26,6 +26,10 @@ Table spaces {
   type        varchar   [not null, note: 'MY | SHARED']
   invite_code varchar   [unique, null,  note: '공유 스페이스 초대 코드']
   created_at  timestamp [not null, default: `now()`]
+
+  indexes {
+    (owner_id, type) [note: '내 스페이스(MY) 해석 및 소유 스페이스 조회']
+  }
 }
 
 // 스페이스 멤버 (다대다 조인)
@@ -76,11 +80,15 @@ Table sns_links {
   id                 bigint    [pk, increment]
   user_id            bigint    [not null, ref: > users.id]
   url                varchar   [not null]
-  platform           varchar   [not null, note: 'INSTAGRAM | TIKTOK']
+  platform           varchar   [not null, note: 'INSTAGRAM | TIKTOK | UNKNOWN']
   caption            text      [null]
   hashtags           text      [null, note: '쉼표 구분 또는 JSON 배열']
   extracted_place_id bigint    [null, ref: > places.id, note: 'AI가 추출한 최종 장소']
   created_at         timestamp [not null, default: `now()`]
+
+  indexes {
+    user_id [note: '유저별 링크 추출 이력 조회']
+  }
 }
 
 // ──────────────────────────────────────────
@@ -89,11 +97,16 @@ Table sns_links {
 Table reviews {
   id         bigint    [pk, increment]
   user_id    bigint    [not null, ref: > users.id]
+  space_id   bigint    [not null, ref: > spaces.id, note: '후기가 속한 스페이스']
   place_id   bigint    [not null, ref: > places.id]
   image_url  varchar   [not null]
   content    varchar   [not null, note: '한 줄 후기']
-  expires_at timestamp [not null, note: 'created_at + 24h']
   created_at timestamp [not null, default: `now()`]
+
+  indexes {
+    (place_id, created_at) [note: '장소별 최신 후기 조회']
+    (space_id, created_at) [note: '스페이스 로그 최신순 조회']
+  }
 }
 
 // ──────────────────────────────────────────
@@ -124,4 +137,5 @@ Table notifications {
 | `sns_links` N — 1 `places` | AI 추출 결과로 연결된 장소 |
 | `users` 1 — N `reviews` | 유저가 작성한 폴라로이드 후기 |
 | `places` 1 — N `reviews` | 장소에 달린 후기 목록 |
+| `spaces` 1 — N `reviews` | 스페이스 로그에 노출되는 후기 (선택적 연결) |
 | `users` 1 — N `notifications` | 유저가 받는 알림 |
