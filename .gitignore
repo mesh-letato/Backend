@@ -1,6 +1,5 @@
 ### Gradle ###
 .gradle
-.gradle-local/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -46,8 +45,6 @@ Thumbs.db
 .env
 application-local.properties
 application-local.yml
-**/application-prod.yml
-**/application-prod.yaml
 
 ### Logs ###
 *.log
