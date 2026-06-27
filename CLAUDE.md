@@ -32,16 +32,7 @@ PostgreSQL이 `localhost:5432`에 뜹니다. **로컬에 PostgreSQL이 설치되
 brew services stop postgresql@14  # 버전에 맞게
 ```
 
-### 2. application-local.yml 생성
-
-`core-service/src/main/resources/application-local.example.yml`을 복사해 `application-local.yml`로 만드세요.
-
-```bash
-cp core-service/src/main/resources/application-local.example.yml \
-   core-service/src/main/resources/application-local.yml
-```
-
-### 3. 실행
+### 2. 실행
 
 ```bash
 ./gradlew :core-service:bootRun
