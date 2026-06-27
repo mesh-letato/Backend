@@ -26,6 +26,9 @@ public class User {
 
     private String profileImageUrl;
 
+    @Column(name = "kakao_id", unique = true)
+    private String kakaoId;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -53,5 +56,17 @@ public class User {
     public void updateProfile(String nickname, String profileImageUrl) {
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
+    }
+
+    /** 카카오 소셜 로그인으로 신규 가입하는 사용자 생성 */
+    public static User ofKakao(String kakaoId, String nickname, String profileImageUrl) {
+        User user = User.builder()
+                .email("kakao_" + kakaoId + "@pinmoa.com")
+                .password("KAKAO_OAUTH")
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .build();
+        user.kakaoId = kakaoId;
+        return user;
     }
 }
