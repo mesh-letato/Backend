@@ -2,6 +2,7 @@ package com.pinmoa.gateway.global.config;
 
 import java.net.URI;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
@@ -23,14 +24,18 @@ public class GatewayConfig {
 	@Bean
 	RouterFunction<ServerResponse> coreServiceRoute() {
 		return GatewayRouterFunctions.route("core-service")
-			.route(path("/api/core/**"), HandlerFunctions.http(URI.create(coreServiceUrl)))
+			.route(path("/api/core/**"), HandlerFunctions.http())
+			.filter((request, next) -> next.handle(
+				BeforeFilterFunctions.uri(URI.create(coreServiceUrl)).apply(request)))
 			.build();
 	}
 
 	@Bean
 	RouterFunction<ServerResponse> linkServiceRoute() {
 		return GatewayRouterFunctions.route("link-service")
-			.route(path("/api/link/**"), HandlerFunctions.http(URI.create(linkServiceUrl)))
+			.route(path("/api/link/**"), HandlerFunctions.http())
+			.filter((request, next) -> next.handle(
+				BeforeFilterFunctions.uri(URI.create(linkServiceUrl)).apply(request)))
 			.build();
 	}
 }
