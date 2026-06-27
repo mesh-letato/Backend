@@ -1,16 +1,27 @@
-package com.pinmoa.core.place.entity;
+package com.pinmoa.core.place.domain;
 
-import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "places")
 @Getter
-@NoArgsConstructor
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Place {
 
     @Id
@@ -42,17 +53,5 @@ public class Place {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-    }
-
-    @Builder
-    public Place(String kakaoPlaceId, String name, String category, String address,
-        BigDecimal latitude, BigDecimal longitude, String thumbnailUrl) {
-        this.kakaoPlaceId = kakaoPlaceId;
-        this.name = name;
-        this.category = category;
-        this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.thumbnailUrl = thumbnailUrl;
     }
 }

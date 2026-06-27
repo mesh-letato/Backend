@@ -21,7 +21,7 @@ public class KakaoPlaceClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${kakao.api-key}")
+    @Value("${kakao.api.key}")
     private String apiKey;
 
     private static final String KAKAO_SEARCH_URL =
