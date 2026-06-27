@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: link-service
+
+# 테스트용 더미 설정 (실제 외부 호출은 하지 않음)
+kakao:
+  api:
+    key: test-kakao-key
+    local-search-url: https://dapi.kakao.com/v2/local/search/keyword.json
+    search-size: 5
+
+aws:
+  region: ap-northeast-2
+  bedrock:
+    model-id: test-model
+
+ytdlp:
+  binary: yt-dlp
+  timeout-seconds: 30
