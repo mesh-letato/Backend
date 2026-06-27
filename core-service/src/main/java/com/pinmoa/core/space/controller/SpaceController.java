@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -64,6 +65,15 @@ public class SpaceController {
             @RequestBody SpaceUpdateRequest request
     ) {
         return ResponseEntity.ok(spaceService.updateSpace(spaceId, userId, request));
+    }
+
+    @Operation(summary = "초대 코드로 스페이스 참여")
+    @PostMapping("/join")
+    public ResponseEntity<SpaceResponse> joinSpace(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam String inviteCode
+    ) {
+        return ResponseEntity.ok(spaceService.joinSpace(userId, inviteCode));
     }
 
     @Operation(summary = "스페이스 삭제 (OWNER만 가능)")

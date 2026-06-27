@@ -85,6 +85,24 @@ public class SpaceService {
     }
 
     @Transactional
+    public SpaceResponse joinSpace(Long userId, String inviteCode) {
+        Space space = spaceRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INVITE_CODE));
+
+        if (spaceMemberRepository.existsBySpaceIdAndUserId(space.getId(), userId)) {
+            throw new BusinessException(ErrorCode.ALREADY_SPACE_MEMBER);
+        }
+
+        spaceMemberRepository.save(SpaceMember.builder()
+                .space(space)
+                .userId(userId)
+                .role(SpaceRole.MEMBER)
+                .build());
+
+        return SpaceResponse.from(space);
+    }
+
+    @Transactional
     public void deleteSpace(Long spaceId, Long userId) {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SPACE_NOT_FOUND));
