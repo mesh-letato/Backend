@@ -2,6 +2,9 @@ package com.pinmoa.core.user.service;
 
 import com.pinmoa.core.global.exception.BusinessException;
 import com.pinmoa.core.global.exception.ErrorCode;
+import com.pinmoa.core.space.dto.SpaceCreateRequest;
+import com.pinmoa.core.space.entity.SpaceType;
+import com.pinmoa.core.space.service.SpaceService;
 import com.pinmoa.core.user.domain.User;
 import com.pinmoa.core.user.dto.*;
 import com.pinmoa.core.user.repository.UserRepository;
@@ -16,6 +19,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final SpaceService spaceService;
 
     @Transactional
     public UserResponse signup(UserSignupRequest request) {
@@ -27,7 +31,12 @@ public class UserService {
             .password(passwordEncoder.encode(request.password()))
             .nickname(request.nickname())
             .build();
-        return UserResponse.from(userRepository.save(user));
+        userRepository.save(user);
+
+        // 가입 완료 시 내 스페이스 자동 생성 (기획서 F-03)
+        spaceService.createSpace(user.getId(), new SpaceCreateRequest("내 스페이스", null, SpaceType.MY));
+
+        return UserResponse.from(user);
     }
 
     @Transactional(readOnly = true)
