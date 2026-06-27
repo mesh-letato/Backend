@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -34,6 +35,13 @@ public class KakaoTokenResponseClient implements OAuth2AccessTokenResponseClient
         params.add("client_id", request.getClientRegistration().getClientId());
         params.add("redirect_uri", request.getAuthorizationExchange().getAuthorizationRequest().getRedirectUri());
         params.add("code", request.getAuthorizationExchange().getAuthorizationResponse().getCode());
+
+        // PKCE 사용 시 인가 요청에 담겼던 code_verifier를 토큰 요청에도 동일하게 포함해야 함
+        Object codeVerifier = request.getAuthorizationExchange().getAuthorizationRequest()
+                .getAttribute(PkceParameterNames.CODE_VERIFIER);
+        if (codeVerifier != null) {
+            params.add(PkceParameterNames.CODE_VERIFIER, codeVerifier.toString());
+        }
 
         // client_secret이 설정된 경우에만 포함 — 미설정 시 전송하면 KOE010 발생
         String clientSecret = request.getClientRegistration().getClientSecret();
