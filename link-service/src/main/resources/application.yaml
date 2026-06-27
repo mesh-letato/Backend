@@ -1,6 +1,19 @@
 spring:
   application:
     name: link-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/pinmoa_dev}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:pinmoa}
+    password: ${DB_PASSWORD:pinmoa1234}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
 
 server:
   port: 8082

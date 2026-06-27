@@ -7,6 +7,7 @@ import com.pinmoa.link.link.dto.LinkExtractRequest;
 import com.pinmoa.link.link.dto.LinkExtractResponse;
 import com.pinmoa.link.link.dto.PlaceCandidate;
 import com.pinmoa.link.link.dto.VideoMetadata;
+import com.pinmoa.link.link.repository.LinkRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,8 @@ class LinkServiceTest {
 	private PlaceTextExtractor placeTextExtractor;
 	@Mock
 	private KakaoPlaceSearchClient kakaoPlaceSearchClient;
+	@Mock
+	private LinkRepository linkRepository;
 
 	@InjectMocks
 	private LinkService linkService;
@@ -49,7 +52,7 @@ class LinkServiceTest {
 			.thenReturn(List.of(candidate("1", "미오 성수")));
 
 		LinkExtractResponse response = linkService.extract(
-			new LinkExtractRequest("https://www.instagram.com/reel/abc"));
+			1L, new LinkExtractRequest("https://www.instagram.com/reel/abc"));
 
 		assertThat(response.platform()).isEqualTo("INSTAGRAM");
 		assertThat(response.candidates()).hasSize(1);
@@ -69,7 +72,7 @@ class LinkServiceTest {
 			.thenReturn(List.of(candidate("1", "미오 성수"), candidate("2", "센터커피")));
 
 		LinkExtractResponse response = linkService.extract(
-			new LinkExtractRequest("https://www.tiktok.com/@u/video/1"));
+			1L, new LinkExtractRequest("https://www.tiktok.com/@u/video/1"));
 
 		assertThat(response.platform()).isEqualTo("TIKTOK");
 		assertThat(response.candidates())
@@ -88,7 +91,7 @@ class LinkServiceTest {
 			.thenReturn(List.of(candidate(null, "이름없음1"), candidate(null, "이름없음2")));
 
 		LinkExtractResponse response = linkService.extract(
-			new LinkExtractRequest("https://example.com/x"));
+			1L, new LinkExtractRequest("https://example.com/x"));
 
 		assertThat(response.platform()).isEqualTo("UNKNOWN");
 		assertThat(response.candidates()).hasSize(2);
@@ -102,7 +105,7 @@ class LinkServiceTest {
 		when(placeTextExtractor.extract(any())).thenReturn(List.of());
 
 		LinkExtractResponse response = linkService.extract(
-			new LinkExtractRequest("https://www.instagram.com/reel/none"));
+			1L, new LinkExtractRequest("https://www.instagram.com/reel/none"));
 
 		assertThat(response.candidates()).isEmpty();
 	}

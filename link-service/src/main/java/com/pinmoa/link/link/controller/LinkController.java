@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,9 @@ public class LinkController {
 
 	@Operation(summary = "링크에서 장소 후보 추출 (yt-dlp → LLM → 카카오맵)")
 	@PostMapping("/extract")
-	public ResponseEntity<LinkExtractResponse> extract(@Valid @RequestBody LinkExtractRequest request) {
-		return ResponseEntity.ok(linkService.extract(request));
+	public ResponseEntity<LinkExtractResponse> extract(
+			@RequestHeader("X-User-Id") Long userId,
+			@Valid @RequestBody LinkExtractRequest request) {
+		return ResponseEntity.ok(linkService.extract(userId, request));
 	}
 }

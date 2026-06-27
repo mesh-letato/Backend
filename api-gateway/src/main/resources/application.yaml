@@ -26,3 +26,7 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+# JWT 검증 (core-service 와 동일한 시크릿)
+jwt:
+  secret: ${JWT_SECRET:pinmoa-jwt-secret-key-must-be-at-least-32-characters-long}
