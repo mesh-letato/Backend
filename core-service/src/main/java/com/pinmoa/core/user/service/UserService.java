@@ -3,6 +3,7 @@ package com.pinmoa.core.user.service;
 import com.pinmoa.core.user.domain.User;
 import com.pinmoa.core.user.dto.*;
 import com.pinmoa.core.user.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,15 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         userRepository.delete(findById(userId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> searchByNickname(String query) {
+        String nickname = query.startsWith("@") ? query.substring(1) : query;
+        return userRepository.findByNicknameContaining(nickname)
+            .stream()
+            .map(UserResponse::from)
+            .toList();
     }
 
     private User findById(Long userId) {

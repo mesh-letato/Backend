@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Tag(name = "User", description = "회원 관련 API")
 @RestController
@@ -36,6 +37,12 @@ public class UserController {
         @RequestBody @Valid UserUpdateRequest request
     ) {
         return ResponseEntity.ok(userService.updateUser(userId, request));
+    }
+
+    @Operation(summary = "닉네임으로 유저 검색 (@닉네임 형식 지원)")
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUsers(@RequestParam String query) {
+        return ResponseEntity.ok(userService.searchByNickname(query));
     }
 
     @Operation(summary = "회원 탈퇴")
