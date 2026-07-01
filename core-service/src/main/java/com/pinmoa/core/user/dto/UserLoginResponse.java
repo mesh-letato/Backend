@@ -5,6 +5,7 @@ public record UserLoginResponse(
     String email,
     String nickname,
     String accessToken,
-    String refreshToken
+    String refreshToken,
+    boolean isNewUser
 ) {
 }

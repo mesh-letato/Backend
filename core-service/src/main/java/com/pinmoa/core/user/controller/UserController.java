@@ -29,6 +29,12 @@ public class UserController {
         return ResponseEntity.ok(userService.login(request));
     }
 
+    @Operation(summary = "카카오 로그인 (앱에서 받은 카카오 access token으로 로그인/가입, JWT 토큰 반환)")
+    @PostMapping("/kakao-login")
+    public ResponseEntity<UserLoginResponse> kakaoLogin(@RequestBody @Valid KakaoLoginRequest request) {
+        return ResponseEntity.ok(userService.kakaoLogin(request));
+    }
+
     @Operation(summary = "Access Token 갱신")
     @PostMapping("/refresh")
     public ResponseEntity<TokenRefreshResponse> refresh(@RequestBody @Valid TokenRefreshRequest request) {

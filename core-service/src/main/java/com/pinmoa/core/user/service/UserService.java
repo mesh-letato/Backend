@@ -3,7 +3,9 @@ package com.pinmoa.core.user.service;
 import com.pinmoa.core.global.exception.BusinessException;
 import com.pinmoa.core.global.exception.ErrorCode;
 import com.pinmoa.core.global.jwt.JwtUtil;
+import com.pinmoa.core.user.client.KakaoUserClient;
 import com.pinmoa.core.user.domain.RefreshToken;
+import com.pinmoa.core.user.domain.SocialType;
 import com.pinmoa.core.user.domain.User;
 import com.pinmoa.core.user.dto.*;
 import com.pinmoa.core.user.repository.RefreshTokenRepository;
@@ -23,6 +25,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final KakaoUserClient kakaoUserClient;
 
     @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
@@ -32,11 +35,7 @@ public class UserService {
         if (userRepository.existsByEmail(request.email())) {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
-        User user = User.builder()
-            .email(request.email())
-            .password(passwordEncoder.encode(request.password()))
-            .nickname(request.nickname())
-            .build();
+        User user = User.ofLocal(request.email(), passwordEncoder.encode(request.password()), request.nickname());
         return UserResponse.from(userRepository.save(user));
     }
 
@@ -48,6 +47,49 @@ public class UserService {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
 
+        return issueTokens(user, false);
+    }
+
+    @Transactional
+    public UserLoginResponse kakaoLogin(KakaoLoginRequest request) {
+        String accessToken = resolveKakaoAccessToken(request);
+        KakaoUserInfo kakaoUserInfo = kakaoUserClient.getUserInfo(accessToken);
+
+        boolean[] isNewUser = {false};
+        User user = userRepository.findBySocialTypeAndSocialId(SocialType.KAKAO, kakaoUserInfo.socialId())
+            .orElseGet(() -> {
+                isNewUser[0] = true;
+                return createKakaoUser(kakaoUserInfo);
+            });
+
+        return issueTokens(user, isNewUser[0]);
+    }
+
+    private String resolveKakaoAccessToken(KakaoLoginRequest request) {
+        if (request.kakaoAccessToken() != null && !request.kakaoAccessToken().isBlank()) {
+            return request.kakaoAccessToken();
+        }
+        if (request.code() != null && !request.code().isBlank()
+            && request.redirectUri() != null && !request.redirectUri().isBlank()) {
+            return kakaoUserClient.exchangeCodeForAccessToken(request.code(), request.redirectUri());
+        }
+        throw new BusinessException(ErrorCode.INVALID_INPUT);
+    }
+
+    private User createKakaoUser(KakaoUserInfo kakaoUserInfo) {
+        if (userRepository.existsByEmail(kakaoUserInfo.email())) {
+            // ponytail: 로컬 계정과 카카오 계정 자동 연동은 범위 밖. 계정 연동이 필요해지면 여기서 처리.
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+        return userRepository.save(User.ofKakao(
+            kakaoUserInfo.email(),
+            kakaoUserInfo.nickname(),
+            kakaoUserInfo.profileImageUrl(),
+            kakaoUserInfo.socialId()
+        ));
+    }
+
+    private UserLoginResponse issueTokens(User user, boolean isNewUser) {
         String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getNickname());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
@@ -62,7 +104,7 @@ public class UserService {
                     .build())
             );
 
-        return new UserLoginResponse(user.getId(), user.getEmail(), user.getNickname(), accessToken, refreshToken);
+        return new UserLoginResponse(user.getId(), user.getEmail(), user.getNickname(), accessToken, refreshToken, isNewUser);
     }
 
     @Transactional

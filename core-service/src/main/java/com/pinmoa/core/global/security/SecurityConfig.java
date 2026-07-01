@@ -29,6 +29,7 @@ public class SecurityConfig {
                 // 인증 불필요
                 .requestMatchers(HttpMethod.POST, "/api/core/users/signup").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/core/users/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/core/users/kakao-login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/core/users/refresh").permitAll()
                 // Swagger
                 .requestMatchers(

@@ -35,6 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	private static final List<String> PUBLIC_PATHS = List.of(
 		"/api/core/users/signup",
 		"/api/core/users/login",
+		"/api/core/users/kakao-login",
 		"/api/core/users/refresh",
 		"/swagger",
 		"/swagger-ui",

@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {"social_type", "social_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
@@ -18,13 +18,19 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
     private String nickname;
 
     private String profileImageUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "social_type", nullable = false)
+    private SocialType socialType;
+
+    @Column(name = "social_id")
+    private String socialId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -43,11 +49,33 @@ public class User {
     }
 
     @Builder
-    private User(String email, String password, String nickname, String profileImageUrl) {
+    private User(String email, String password, String nickname, String profileImageUrl,
+                  SocialType socialType, String socialId) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
+        this.socialType = socialType;
+        this.socialId = socialId;
+    }
+
+    public static User ofLocal(String email, String password, String nickname) {
+        return User.builder()
+            .email(email)
+            .password(password)
+            .nickname(nickname)
+            .socialType(SocialType.LOCAL)
+            .build();
+    }
+
+    public static User ofKakao(String email, String nickname, String profileImageUrl, String socialId) {
+        return User.builder()
+            .email(email)
+            .nickname(nickname)
+            .profileImageUrl(profileImageUrl)
+            .socialType(SocialType.KAKAO)
+            .socialId(socialId)
+            .build();
     }
 
     public void updateProfile(String nickname, String profileImageUrl) {
