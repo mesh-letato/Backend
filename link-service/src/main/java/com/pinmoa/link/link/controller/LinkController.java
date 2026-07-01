@@ -22,7 +22,7 @@ public class LinkController {
 
 	private final LinkService linkService;
 
-	@Operation(summary = "링크에서 장소 후보 추출 (yt-dlp → LLM → 카카오맵)")
+	@Operation(summary = "인스타그램 링크에서 장소 후보 추출 (임베드 캡션 → LLM → 카카오맵)")
 	@PostMapping("/extract")
 	public ResponseEntity<LinkExtractResponse> extract(
 			@AuthenticationPrincipal Long userId,

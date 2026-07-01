@@ -10,14 +10,13 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
 
-	// AWS Bedrock (LLM 장소 추출) - 2.31.x 이상에서 AWS_BEARER_TOKEN_BEDROCK 지원
-	implementation platform('software.amazon.awssdk:bom:2.31.78')
-	implementation 'software.amazon.awssdk:bedrockruntime'
-
 	// sns_links 영속화
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	runtimeOnly 'org.postgresql:postgresql'
 	testRuntimeOnly 'com.h2database:h2'
+
+	// 인스타그램 임베드 페이지(캡션 크롤러 UA) HTML 파싱
+	implementation 'org.jsoup:jsoup:1.17.2'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
