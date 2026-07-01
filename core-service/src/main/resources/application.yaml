@@ -2,16 +2,15 @@ spring:
   application:
     name: core-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    driver-class-name: org.postgresql.Driver
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:pinmoa;MODE=PostgreSQL}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     open-in-view: false
 
@@ -33,6 +32,9 @@ springdoc:
 kakao:
   api:
     key: ${KAKAO_API_KEY}
+  oauth:
+    # 카카오 로그인 > 보안 탭에서 Client Secret 을 켠 경우에만 값 설정 (꺼져 있으면 비워둔다)
+    client-secret: ${KAKAO_CLIENT_SECRET:}
 
 jwt:
   secret: ${JWT_SECRET:pinmoa-local-dev-secret-key-must-be-at-least-256-bits-long}
