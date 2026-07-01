@@ -47,7 +47,7 @@ public class UserService {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
 
-        return issueTokens(user);
+        return issueTokens(user, false);
     }
 
     @Transactional
@@ -55,10 +55,14 @@ public class UserService {
         String accessToken = resolveKakaoAccessToken(request);
         KakaoUserInfo kakaoUserInfo = kakaoUserClient.getUserInfo(accessToken);
 
+        boolean[] isNewUser = {false};
         User user = userRepository.findBySocialTypeAndSocialId(SocialType.KAKAO, kakaoUserInfo.socialId())
-            .orElseGet(() -> createKakaoUser(kakaoUserInfo));
+            .orElseGet(() -> {
+                isNewUser[0] = true;
+                return createKakaoUser(kakaoUserInfo);
+            });
 
-        return issueTokens(user);
+        return issueTokens(user, isNewUser[0]);
     }
 
     private String resolveKakaoAccessToken(KakaoLoginRequest request) {
@@ -85,7 +89,7 @@ public class UserService {
         ));
     }
 
-    private UserLoginResponse issueTokens(User user) {
+    private UserLoginResponse issueTokens(User user, boolean isNewUser) {
         String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getNickname());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
@@ -100,7 +104,7 @@ public class UserService {
                     .build())
             );
 
-        return new UserLoginResponse(user.getId(), user.getEmail(), user.getNickname(), accessToken, refreshToken);
+        return new UserLoginResponse(user.getId(), user.getEmail(), user.getNickname(), accessToken, refreshToken, isNewUser);
     }
 
     @Transactional
