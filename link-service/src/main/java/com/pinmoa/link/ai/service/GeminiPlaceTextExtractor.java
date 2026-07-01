@@ -1,32 +1,24 @@
 package com.pinmoa.link.ai.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pinmoa.link.ai.dto.ExtractedPlace;
 import com.pinmoa.link.global.exception.LinkProcessingException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
-import software.amazon.awssdk.services.bedrockruntime.model.ContentBlock;
-import software.amazon.awssdk.services.bedrockruntime.model.ConversationRole;
-import software.amazon.awssdk.services.bedrockruntime.model.ConverseRequest;
-import software.amazon.awssdk.services.bedrockruntime.model.ConverseResponse;
-import software.amazon.awssdk.services.bedrockruntime.model.InferenceConfiguration;
-import software.amazon.awssdk.services.bedrockruntime.model.Message;
-import software.amazon.awssdk.services.bedrockruntime.model.SystemContentBlock;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * AWS Bedrock(Converse API)을 사용해 텍스트에서 장소 단서를 추출한다.
+ * Google Gemini API(generateContent)로 텍스트에서 장소 단서를 추출한다.
  * 모델에 JSON 배열만 반환하도록 지시하고, 응답을 파싱한다.
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class BedrockPlaceTextExtractor implements PlaceTextExtractor {
+public class GeminiPlaceTextExtractor implements PlaceTextExtractor {
 
 	private static final String SYSTEM_PROMPT = """
 		너는 짧은 동영상(릴스/틱톡/쇼츠)의 설명글에서 '실제 방문 가능한 장소'를 찾아내는 도우미다.
@@ -37,11 +29,19 @@ public class BedrockPlaceTextExtractor implements PlaceTextExtractor {
 		장소 이름은 검색 가능한 고유명사로, 지역은 '성수동', '서울 강남' 처럼 검색에 도움이 되는 형태로 적는다.
 		""";
 
-	private final BedrockRuntimeClient bedrockRuntimeClient;
+	private final RestClient restClient;
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final String model;
+	private final String apiKey;
 
-	@Value("${aws.bedrock.model-id}")
-	private String modelId;
+	public GeminiPlaceTextExtractor(
+		@Value("${gemini.api.key}") String apiKey,
+		@Value("${gemini.api.model}") String model
+	) {
+		this.apiKey = apiKey;
+		this.model = model;
+		this.restClient = RestClient.create("https://generativelanguage.googleapis.com");
+	}
 
 	@Override
 	public List<ExtractedPlace> extract(String text) {
@@ -55,25 +55,26 @@ public class BedrockPlaceTextExtractor implements PlaceTextExtractor {
 
 	private String invokeModel(String text) {
 		try {
-			Message userMessage = Message.builder()
-				.role(ConversationRole.USER)
-				.content(ContentBlock.fromText(text))
-				.build();
+			Map<String, Object> body = Map.of(
+				"system_instruction", Map.of("parts", List.of(Map.of("text", SYSTEM_PROMPT))),
+				"contents", List.of(Map.of("role", "user", "parts", List.of(Map.of("text", text)))),
+				"generationConfig", Map.of("temperature", 0.0, "maxOutputTokens", 1024)
+			);
 
-			ConverseRequest request = ConverseRequest.builder()
-				.modelId(modelId)
-				.system(SystemContentBlock.fromText(SYSTEM_PROMPT))
-				.messages(userMessage)
-				.inferenceConfig(InferenceConfiguration.builder()
-					.maxTokens(1024)
-					.temperature(0.0f)
-					.build())
-				.build();
+			String response = restClient.post()
+				.uri("/v1beta/models/{model}:generateContent?key={key}", model, apiKey)
+				.body(body)
+				.retrieve()
+				.body(String.class);
 
-			ConverseResponse response = bedrockRuntimeClient.converse(request);
-			return response.output().message().content().get(0).text();
-		} catch (RuntimeException e) {
-			log.error("Bedrock 장소 추출 호출 실패", e);
+			log.info("Gemini 원본 응답: {}", response);
+
+			JsonNode root = objectMapper.readTree(response);
+			String extracted = root.path("candidates").path(0).path("content").path("parts").path(0).path("text").asText();
+			log.info("Gemini 추출 텍스트: {}", extracted);
+			return extracted;
+		} catch (Exception e) {
+			log.error("Gemini 장소 추출 호출 실패", e);
 			throw new LinkProcessingException("LLM 장소 추출에 실패했습니다.", e);
 		}
 	}
@@ -88,7 +89,7 @@ public class BedrockPlaceTextExtractor implements PlaceTextExtractor {
 		int start = output.indexOf('[');
 		int end = output.lastIndexOf(']');
 		if (start < 0 || end < 0 || end <= start) {
-			log.warn("LLM 응답에서 JSON 배열을 찾지 못했습니다: {}", output);
+			log.warn("Gemini 응답에서 JSON 배열을 찾지 못했습니다: {}", output);
 			return List.of();
 		}
 		String json = output.substring(start, end + 1);
@@ -96,7 +97,7 @@ public class BedrockPlaceTextExtractor implements PlaceTextExtractor {
 			ExtractedPlace[] places = objectMapper.readValue(json, ExtractedPlace[].class);
 			return List.of(places);
 		} catch (Exception e) {
-			log.warn("LLM 응답 JSON 파싱 실패: {}", json, e);
+			log.warn("Gemini 응답 JSON 파싱 실패: {}", json, e);
 			return List.of();
 		}
 	}

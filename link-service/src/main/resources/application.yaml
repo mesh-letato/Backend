@@ -36,13 +36,8 @@ kakao:
     key: ${KAKAO_API_KEY}
     local-search-url: https://dapi.kakao.com/v2/local/search/keyword.json
 
-# AWS Bedrock (LLM 장소 추출)
-aws:
-  region: ${AWS_REGION:ap-northeast-2}
-  bedrock:
-    model-id: ${BEDROCK_MODEL_ID:anthropic.claude-3-5-sonnet-20241022-v2:0}
-
-# yt-dlp 실행 설정
-ytdlp:
-  binary: ${YTDLP_BINARY:yt-dlp}
-  timeout-seconds: 30
+# Google Gemini (LLM 장소 추출)
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    model: ${GEMINI_MODEL_ID}
